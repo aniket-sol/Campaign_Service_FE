@@ -12,7 +12,7 @@ import CampaignModal from "./CampaignModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import MessageModal from "../common/MessageModal"; // Import the MessageModal
 
-const CampaignList = () => {
+const PracticeAdminCampaignList = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +28,7 @@ const CampaignList = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await campaignAPI.getCampaigns(); // Replace with your API call
+        const response = await campaignAPI.getPracticeAdminCampaigns(); // Replace with your API call
         setCampaigns(response.campaigns); // Assuming the API response contains the data array
         setLoading(false);
       } catch (err) {
@@ -53,19 +53,21 @@ const CampaignList = () => {
 
   const handleSendModalSave = async (data) => {
     try {
+      const updatedModalData = {
+        ...data,
+        user_campaign_id: selectedCampaign.id,
+      }; // Add the campaign.id to modalData
 
-          const updatedModalData = { ...data, user_campaign_id: selectedCampaign.id }; // Add the campaign.id to modalData
-    
-          // Create the campaign sequence with the updated modalData
-          const campaignSequence = await campaignAPI.createCampaignSequence(
-            updatedModalData
-          );
-          console.log(campaignSequence);
-          // console.log(updatedModalData);
-          toast.success("Campaign scheduled successfully!");
-        } catch (error) {
-          toast.error(error.message);
-        }
+      // Create the campaign sequence with the updated modalData
+      const campaignSequence = await campaignAPI.createCampaignSequence(
+        updatedModalData
+      );
+      console.log(campaignSequence);
+      // console.log(updatedModalData);
+      toast.success("Campaign scheduled successfully!");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   // Dummy API calls for Edit, Delete, and Send
@@ -80,11 +82,11 @@ const CampaignList = () => {
       console.log(response);
       setCampaigns(campaigns.filter((campaign) => campaign.id !== campaignId));
       setIsDeleteModalOpen(false);
-      toast.success("Campaign deleted successfully!")
+      toast.success("Campaign deleted successfully!");
     } catch (e) {
       console.log(e);
       setIsDeleteModalOpen(false);
-      toast.error("Could not delete the campaign!")
+      toast.error("Could not delete the campaign!");
     }
   };
 
@@ -100,10 +102,10 @@ const CampaignList = () => {
         updatedCampaign.id,
         updatedCampaign
       );
-      toast.success("Campaign Updated Sucessfully!")
+      toast.success("Campaign Updated Sucessfully!");
       console.log(response);
     } catch (err) {
-      toast.error("Could not update Campaign!")
+      toast.error("Could not update Campaign!");
       console.log(err);
     }
     console.log("Updated Campaign:", updatedCampaign);
@@ -122,17 +124,18 @@ const CampaignList = () => {
     return <div className="text-red-500">{error}</div>;
   }
 
-  // if (!campaigns.length) {
-  //   return <div>No campaigns found</div>;
-  // }
+//   if (!campaigns.length) {
+//     return <div>No campaigns found</div>;
+//   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-4">
+    <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-xl font-semibold mb-4">
-        {user?.is_super_admin ? "Your Campaigns" : "Default Campaigns Available"}
+        {"Your Campaigns"}
         {"  (" + campaigns.length + ")"}
       </h2>
       <div className="space-y-4">
+        {/* {campaigns.length == 0 && "No campaigns"} */}
         {campaigns.map((campaign) => (
           <div
             key={campaign.id}
@@ -141,7 +144,11 @@ const CampaignList = () => {
             <div className="flex justify-between items-center mb-2">
               <div>
                 <h3 className="font-medium">{campaign.title}</h3>
-                {campaign.description.length <= MAX_PREVIEW_LENGTH && <p className="text-sm text-gray-600">{campaign.description}</p>}
+                {campaign.description.length <= MAX_PREVIEW_LENGTH && (
+                  <p className="text-sm text-gray-600">
+                    {campaign.description}
+                  </p>
+                )}
                 {/* Show Read More link if description length exceeds 30 characters */}
                 {campaign.description.length > MAX_PREVIEW_LENGTH && (
                   <button
@@ -159,34 +166,31 @@ const CampaignList = () => {
                 )} */}
               </div>
               <div className="flex gap-4">
-                {user?.is_super_admin && (
-                  <button
-                    onClick={() =>
-                      handleEditCampaign({
-                        id: campaign.id,
-                        title: campaign.title,
-                        description: campaign.description,
-                        status: campaign.status,
-                      })
-                    }
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                )}
-                {user?.is_super_admin && (
-                  <button
-                    onClick={() =>
-                      openDeleteModal({
-                        id: campaign.id,
-                        title: campaign.title,
-                      })
-                    }
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </button>
-                )}
+                <button
+                onClick={() =>
+                    handleEditCampaign({
+                    id: campaign.id,
+                    title: campaign.title,
+                    description: campaign.description,
+                    status: campaign.status,
+                    })
+                }
+                className="text-blue-500 hover:text-blue-700"
+                >
+                <PencilIcon className="h-5 w-5" />
+                </button>
+                
+                <button
+                onClick={() =>
+                    openDeleteModal({
+                    id: campaign.id,
+                    title: campaign.title,
+                    })
+                }
+                className="text-red-500 hover:text-red-700"
+                >
+                <TrashIcon className="h-5 w-5" />
+                </button>
                 <button
                   onClick={() =>
                     handleSendModal({
@@ -202,8 +206,8 @@ const CampaignList = () => {
                 </button>
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    campaign.status === "ACTIVE"
-                      ? "bg-green-100 text-green-800"
+                    campaign.status === "SENT"
+                      ? "bg-blue-100 text-blue-800"
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
@@ -252,4 +256,4 @@ const CampaignList = () => {
   );
 };
 
-export default CampaignList;
+export default PracticeAdminCampaignList;

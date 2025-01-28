@@ -65,6 +65,7 @@ const MessageBox = () => {
         <p>Loading messages...</p>
       ) : (
         <div className="space-y-3">
+          {messages.length==0 && "No messages available"}
           {messages.map((message) => (
             <div
               key={message.id}

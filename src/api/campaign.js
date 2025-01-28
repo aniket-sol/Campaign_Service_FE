@@ -6,8 +6,10 @@ const API_URL = import.meta.env.VITE_BACKEND_URL;
 export const campaignAPI = {
     
     createCampaign: async (campaignData) => {
+        console.log(campaignData);
         const response = await axios.post(`${API_URL}campaign/`, campaignData, {
             headers: getAuthHeader(),
+            params: getRequestParams(),
         });
         return response.data;
     },
@@ -15,6 +17,7 @@ export const campaignAPI = {
     createCampaignSequence: async(sequenceData) =>{
         const response = await axios.post(`${API_URL}campaign/sequence`, sequenceData, {
             headers: getAuthHeader(),
+            params: getRequestParams(),
         });
         return response.data;
     },
@@ -34,12 +37,27 @@ export const campaignAPI = {
         }
     },
 
+    getPracticeAdminCampaigns: async () =>{
+        try {
+            const response = await axios.get(`${API_URL}campaign/practice`, {
+                headers: getAuthHeader(),
+                params: getRequestParams(),  // Send params only if practice_id exists
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching campaigns:", error);
+            throw error;
+        }
+    },
+
 
     // Get a single campaign by ID
     getCampaignById: async (campaignId) => {
         // const response = await axios.get(`${API_URL}campaign/${campaignId}/`);
         const response = await axios.get(`${API_URL}campaign/${campaignId}/`, {
             headers: getAuthHeader(),
+            params: getRequestParams(),
         });
         return response.data;
     },
@@ -48,6 +66,7 @@ export const campaignAPI = {
     updateCampaign: async (campaignId, updatedData) => {
         const response = await axios.patch(`${API_URL}campaign/${campaignId}/`, updatedData, {
             headers: getAuthHeader(),
+            params: getRequestParams(),
         });
         return response.data;
     },
@@ -56,6 +75,7 @@ export const campaignAPI = {
     deleteCampaign: async (campaignId) => {
         const response = await axios.delete(`${API_URL}campaign/${campaignId}/`, {
             headers: getAuthHeader(),
+            params: getRequestParams(),
         });
         return response.data;
     },
