@@ -31,6 +31,13 @@ export const authAPI = {
             throw error; // Rethrow error to handle it where `logout` is called
         }
     },
+    changePassword: async(passwordData)=>{
+        console.log(passwordData);
+        const response = await axios.post(`${API_URL}user/change-password/`, passwordData, {
+            headers: getAuthHeader(),
+        });
+        return response.data;
+    },
 
     userRequests: async () =>{
         const response = await axios.get(`${API_URL}user/request/`, {

@@ -15,6 +15,7 @@ export const campaignAPI = {
     },
 
     createCampaignSequence: async(sequenceData) =>{
+        console.log(sequenceData);
         const response = await axios.post(`${API_URL}campaign/sequence`, sequenceData, {
             headers: getAuthHeader(),
             params: getRequestParams(),
@@ -77,6 +78,14 @@ export const campaignAPI = {
             headers: getAuthHeader(),
             params: getRequestParams(),
         });
+        return response.data;
+    },
+
+    campaignHistory: async()=>{
+        const response = await axios.get(`${API_URL}campaign/sequence`, {
+            headers: getAuthHeader(),
+        });
+        console.log(response.data);
         return response.data;
     },
 

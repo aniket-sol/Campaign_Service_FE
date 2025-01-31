@@ -4,12 +4,16 @@ import { authAPI } from "../../api/auth";
 import { logout } from "../../store/slices/authSlice";
 import { toast } from "react-toastify";
 import CreatePracticeModal from "../dashboard/CreatePracticeModal";
+import ChangePasswordModal from "../dashboard/ChangePasswordModal";
+import ManagementModal from "../dashboard/ManagementModal";
 
 export const UserMenu = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [showPracticeModal, setShowPracticeModal] = useState(false);
+  const [isChangePasswordModal, setIsChangePasswordModal] = useState(false);
+  const [isPracticeManagementModal, setIsPracticeManagementModal] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -21,12 +25,17 @@ export const UserMenu = () => {
     }
   };
 
-  const handleCreatePractice = () => {
-    setIsOpen(false); // Close the dropdown
-    setShowPracticeModal(true); // Open the modal
-  };
+  // const handleCreatePractice = () => {
+  //   setIsOpen(false); // Close the dropdown
+  //   setShowPracticeModal(true); // Open the modal
+  // };
   const handleChangePassword = () =>{
-    console.log("change password");
+    console.log("Opening Change Password Modal");
+    setIsChangePasswordModal(true);
+  }
+
+  const handlePracticeManagement = () => {
+    setIsPracticeManagementModal(true);
   }
 
   return (
@@ -55,20 +64,34 @@ export const UserMenu = () => {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
-          {user?.is_super_admin && (
+          {/* {user?.is_super_admin && (
             <button
               onClick={handleCreatePractice}
               className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               Create Practice
             </button>
-          )}
+          )} */}
           <button
             onClick={handleChangePassword}
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
           >
             Change Password
           </button>
+          <ChangePasswordModal
+            isOpen={isChangePasswordModal}
+            onClose={() => setIsChangePasswordModal(false)}
+          />
+          <button
+            onClick={handlePracticeManagement}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Management
+          </button>
+          <ManagementModal
+            open={isPracticeManagementModal}
+            onOpenChange={()=> setIsPracticeManagementModal(false)}
+          />
           <button
             onClick={handleLogout}
             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

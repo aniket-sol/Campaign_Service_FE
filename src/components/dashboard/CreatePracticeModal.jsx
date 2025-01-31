@@ -14,6 +14,7 @@ import { Label } from "../ui/label";
 import { useToast } from "../../hooks/use-toast";
 import { PlusCircle } from "lucide-react";
 import { practiceAPI } from "../../api/practice";
+import { toast } from "react-toastify";
 
 const CreatePracticeModal = ({ open, onOpenChange }) => {
   // State to hold the object with a name field
@@ -39,21 +40,13 @@ const CreatePracticeModal = ({ open, onOpenChange }) => {
       // API call with the practice object
       const createdPractice = await practiceAPI.createPractice(practice);
       console.log(createdPractice);
-
-      toast({
-        title: "Success",
-        description: "Practice created successfully",
-      });
+      toast.success("Practice created successfully!");
 
       // Reset the state and close the modal
       setPractice({ name: "" });
       onOpenChange(false);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create practice",
-        variant: "destructive",
-      });
+      toast.error(error);
     } finally {
       setIsSubmitting(false);
     }

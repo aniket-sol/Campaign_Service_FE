@@ -12,16 +12,18 @@ export const practiceAPI = {
     
     createPractice: async (practiceData) => {
         // console.log(getAuthHeader());
-        console.log(practiceData);
         const response = await axios.post(`${API_URL}practice/`, practiceData, {
             headers: getAuthHeader(),
         });
+        console.log(response.data);
         return response.data;
     },
 
     // Get a list of all practices
     getPractice: async () => {
-        const response = await axios.get(`${API_URL}practice/`);
+        const response = await axios.get(`${API_URL}practice/`, {
+            headers: getAuthHeader(),
+        });
         return response.data;
     },
 
@@ -36,13 +38,17 @@ export const practiceAPI = {
 
     // Update an existing Practice
     updatePractice: async (practiceId, updatedData) => {
-        const response = await axios.put(`${API_URL}practice/${practiceId}/`, updatedData);
+        const response = await axios.put(`${API_URL}practice/${practiceId}/`, updatedData, {
+            headers: getAuthHeader(),
+        });
         return response.data;
     },
 
     // Delete a Practice by ID
     deletePractice: async (practiceId) => {
-        const response = await axios.delete(`${API_URL}practice/${practiceId}/`);
+        const response = await axios.delete(`${API_URL}practice/${practiceId}/`, {
+            headers: getAuthHeader(),
+        });
         return response.data;
     },
 
