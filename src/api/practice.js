@@ -46,9 +46,11 @@ export const practiceAPI = {
 
     // Delete a Practice by ID
     deletePractice: async (practiceId) => {
+        console.log(practiceId);
         const response = await axios.delete(`${API_URL}practice/${practiceId}/`, {
             headers: getAuthHeader(),
         });
+        console.log(response);
         return response.data;
     },
 

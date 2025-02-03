@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Button } from "../ui/button";
+import {toast} from "react-toastify";
 import {
   PlusCircleIcon,
   PencilIcon,
@@ -23,8 +24,10 @@ const ManagementModal = ({ open, onOpenChange }) => {
   const [practices, setPractices] = useState([]);
   const [campaignHistory, setCampaignHistory] = useState([]);
   const [isCreatePractice, setIsCreatePractice] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isAdmin = user?.role === "Practice Admin";
   const isSuperAdmin = user?.is_super_admin === true;
+
 
   useEffect(() => {
     if (open) {
@@ -92,6 +95,31 @@ const ManagementModal = ({ open, onOpenChange }) => {
         return "text-red-600";
       default:
         return "text-gray-600";
+    }
+  };
+
+  const handleDeletePractice = async (practiceId) => {
+    try {
+      setIsDeleting(true);
+
+      const response = practiceAPI.deletePractice(practiceId);
+
+      if (!response) {
+        throw new Error("Failed to delete practice");
+      }
+
+      // Update the practices list by filtering out the deleted practice
+      const updatedPractices = practices.filter(
+        (practice) => practice.id !== practiceId
+      );
+      setPractices(updatedPractices);
+
+      toast.success("Practice delete sucessfully")
+    } catch (error) {
+      console.error("Error deleting practice:", error);
+      toast.error("Failed to delete practice. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -217,29 +245,31 @@ const ManagementModal = ({ open, onOpenChange }) => {
                   >
                     <div>
                       <h4 className="font-medium">{practice.name}</h4>
-                      <span className="text-sm text-gray-500">
+                      {/* <span className="text-sm text-gray-500">
                         Location: {practice.location}
-                      </span>
+                      </span> */}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Button
+                      {/* <Button
                         variant="ghost"
                         size="icon"
                         className="hover:text-blue-600"
                       >
                         <EyeIcon className="w-5 h-5" />
-                      </Button>
-                      <Button
+                      </Button> */}
+                      {/* <Button
                         variant="ghost"
                         size="icon"
                         className="hover:text-yellow-600"
                       >
                         <PencilIcon className="w-5 h-5" />
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="ghost"
                         size="icon"
                         className="hover:text-red-600"
+                        onClick = {()=> handleDeletePractice(practice.id)}
+                        disabled = {isDeleting}
                       >
                         <TrashIcon className="w-5 h-5" />
                       </Button>

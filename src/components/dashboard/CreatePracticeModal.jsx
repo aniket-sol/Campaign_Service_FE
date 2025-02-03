@@ -20,7 +20,7 @@ const CreatePracticeModal = ({ open, onOpenChange }) => {
   // State to hold the object with a name field
   const [practice, setPractice] = useState({ name: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
