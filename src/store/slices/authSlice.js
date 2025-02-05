@@ -7,7 +7,7 @@ const initialState = {
     is_super_admin: JSON.parse(localStorage.getItem('user'))?.is_super_admin || null, // Extract is_super_admin from stored user object
     session_token: JSON.parse(localStorage.getItem('user'))?.session_token || null, // Extract session token from stored user object
     role: JSON.parse(localStorage.getItem('user'))?.role || null, // Extract role from stored user object
-    isAuthenticated: !!localStorage.getItem('user'),
+    isAuthenticated: JSON.parse(localStorage.getItem('user'))?.isAuthenticated || false,
     loading: false,
     error: null
 };
@@ -29,8 +29,11 @@ const authSlice = createSlice({
             state.role = action.payload.role; 
             state.error = null;
 
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(action.payload));
+            const dataToStore = {
+                ...action.payload,
+                isAuthenticated: true
+            };
+            localStorage.setItem('user', JSON.stringify(dataToStore));
         },
         loginFailure: (state, action) => {
             state.loading = false;
