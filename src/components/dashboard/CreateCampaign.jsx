@@ -19,6 +19,11 @@ const CreateCampaign = () => {
     try {
       const campaign = await campaignAPI.createCampaign(campaignData);
       console.log(campaign);
+      setCampaignData({
+        title: "",
+        description: "",
+        status: "DRAFT",
+      });
       toast.success("Campaign created successfully!");
     } catch (error) {
       toast.error(error.message);

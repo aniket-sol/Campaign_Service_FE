@@ -129,7 +129,9 @@ const CampaignList = () => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-4">
       <h2 className="text-xl font-semibold mb-4">
-        {user?.is_super_admin ? "Your Campaigns" : "Default Campaigns Available"}
+        {user?.is_super_admin
+          ? "Your Campaigns"
+          : "Default Campaigns Available"}
         {"  (" + campaigns.length + ")"}
       </h2>
       <div className="space-y-4">
@@ -141,15 +143,22 @@ const CampaignList = () => {
             <div className="flex justify-between items-center mb-2">
               <div>
                 <h3 className="font-medium">{campaign.title}</h3>
-                {campaign.description.length <= MAX_PREVIEW_LENGTH && <p className="text-sm text-gray-600">{campaign.description}</p>}
-                {/* Show Read More link if description length exceeds 30 characters */}
-                {campaign.description.length > MAX_PREVIEW_LENGTH && (
-                  <button
-                    onClick={() => handleReadMore(campaign)}
-                    className="text-blue-600 text-sm"
-                  >
-                    Read More
-                  </button>
+                {campaign.description.length <= MAX_PREVIEW_LENGTH ? (
+                  <p className="text-sm text-gray-600">
+                    {campaign.description}
+                  </p>
+                ) : (
+                  <div>
+                    <p className="text-sm text-gray-600">
+                      {campaign.description.substring(0, MAX_PREVIEW_LENGTH)}...
+                    </p>
+                    <button
+                      onClick={() => handleReadMore(campaign)}
+                      className="text-blue-600 text-sm"
+                    >
+                      Read More
+                    </button>
+                  </div>
                 )}
                 {/* {campaign.description.length > MAX_PREVIEW_LENGTH
                   ? `${campaign.description.substring(0, MAX_PREVIEW_LENGTH)}...`

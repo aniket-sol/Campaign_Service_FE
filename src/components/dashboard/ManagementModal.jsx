@@ -16,6 +16,9 @@ import {
 import { campaignAPI } from "../../api/campaign";
 import { practiceAPI } from "../../api/practice";
 import CreatePracticeModal from "./CreatePracticeModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import MessageModal from "../common/MessageModal"; // Import the MessageModal
+import EditCampaignModal from "./EditCampaignModal";
 
 const ManagementModal = ({ open, onOpenChange }) => {
   const [activeTab, setActiveTab] = useState("campaigns");
@@ -25,9 +28,14 @@ const ManagementModal = ({ open, onOpenChange }) => {
   const [campaignHistory, setCampaignHistory] = useState([]);
   const [isCreatePractice, setIsCreatePractice] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState(null); 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState(null);
+  const [isEditCampaignModalOpen, setIsEditCampaignModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
   const isAdmin = user?.role === "Practice Admin";
   const isSuperAdmin = user?.is_super_admin === true;
-
+  const MAX_PREVIEW_LENGTH = 30;
 
   useEffect(() => {
     if (open) {
@@ -123,6 +131,48 @@ const ManagementModal = ({ open, onOpenChange }) => {
     }
   };
 
+  const handleReadMore = (campaign) => {
+    setSelectedMessage(campaign.description); // Set the full description to be shown in the modal
+  };
+  const handleDeleteCampaign = async (campaignId) => {
+    try {
+      const response = await campaignAPI.deleteCampaign(campaignId);
+      console.log(response);
+      setCampaigns(campaigns.filter((campaign) => campaign.id !== campaignId));
+      setIsDeleteModalOpen(false);
+      toast.success("Campaign deleted successfully!");
+    } catch (e) {
+      console.log(e);
+      setIsDeleteModalOpen(false);
+      toast.error("Could not delete the campaign!");
+    }
+  };
+
+  const handleSaveCampaign = async (updatedCampaign) => {
+    // Handle saving the updated campaign (e.g., update state or refetch data)
+    try {
+      const response = await campaignAPI.updateCampaign(
+        updatedCampaign.id,
+        updatedCampaign
+      );
+      toast.success("Campaign Updated Sucessfully!");
+      console.log(response);
+    } catch (err) {
+      toast.error("Could not update Campaign!");
+      console.log(err);
+    }
+    console.log("Updated Campaign:", updatedCampaign);
+  };
+
+  const openDeleteModal = (campaign) => {
+    setCampaignToDelete(campaign);
+    setIsDeleteModalOpen(true);
+  };
+  const handleEditCampaign = (campaign) => {
+    setSelectedCampaign(campaign);
+    setIsEditCampaignModalOpen(true);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
@@ -181,12 +231,27 @@ const ManagementModal = ({ open, onOpenChange }) => {
                       className="p-4 flex flex-col space-y-2"
                     >
                       <h4 className="font-medium text-lg">{campaign.title}</h4>
-                      <p className="text-sm text-gray-500 truncate">
-                        {campaign.description}{" "}
-                        <span className="text-blue-500 cursor-pointer">
-                          Read more
-                        </span>
-                      </p>
+                      {campaign.description.length <= MAX_PREVIEW_LENGTH ? (
+                        <p className="text-sm text-gray-600">
+                          {campaign.description}
+                        </p>
+                      ) : (
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            {campaign.description.substring(
+                              0,
+                              MAX_PREVIEW_LENGTH
+                            )}
+                            ...
+                          </p>
+                          <button
+                            onClick={() => handleReadMore(campaign)}
+                            className="text-blue-600 text-sm"
+                          >
+                            Read More
+                          </button>
+                        </div>
+                      )}
                       <span className="text-xs text-gray-400">
                         Created on:{" "}
                         {new Date(campaign.created_at).toLocaleDateString()}
@@ -200,6 +265,14 @@ const ManagementModal = ({ open, onOpenChange }) => {
                           <EyeIcon className="w-5 h-5" />
                         </Button>
                         <Button
+                          onClick={() =>
+                            handleEditCampaign({
+                              id: campaign.id,
+                              title: campaign.title,
+                              description: campaign.description,
+                              status: campaign.status,
+                            })
+                          }
                           variant="ghost"
                           size="icon"
                           className="hover:text-yellow-600"
@@ -207,6 +280,12 @@ const ManagementModal = ({ open, onOpenChange }) => {
                           <PencilIcon className="w-5 h-5" />
                         </Button>
                         <Button
+                          onClick={() =>
+                            openDeleteModal({
+                              id: campaign.id,
+                              title: campaign.title,
+                            })
+                          }
                           variant="ghost"
                           size="icon"
                           className="hover:text-red-600"
@@ -216,6 +295,25 @@ const ManagementModal = ({ open, onOpenChange }) => {
                       </div>
                     </div>
                   ))}
+                {selectedMessage && (
+                  <MessageModal
+                    message={selectedMessage}
+                    onClose={() => setSelectedMessage(null)}
+                  />
+                )}
+                {/* Edit Modal */}
+                <EditCampaignModal
+                  isOpen={isEditCampaignModalOpen}
+                  onClose={() => setIsEditCampaignModalOpen(false)}
+                  campaign={selectedCampaign}
+                  onSave={handleSaveCampaign}
+                />
+                <ConfirmDeleteModal
+                  isOpen={isDeleteModalOpen}
+                  onClose={() => setIsDeleteModalOpen(false)}
+                  onConfirm={() => handleDeleteCampaign(campaignToDelete?.id)}
+                  campaignName={campaignToDelete?.title}
+                />
               </div>
             </div>
           </TabsContent>
@@ -268,8 +366,8 @@ const ManagementModal = ({ open, onOpenChange }) => {
                         variant="ghost"
                         size="icon"
                         className="hover:text-red-600"
-                        onClick = {()=> handleDeletePractice(practice.id)}
-                        disabled = {isDeleting}
+                        onClick={() => handleDeletePractice(practice.id)}
+                        disabled={isDeleting}
                       >
                         <TrashIcon className="w-5 h-5" />
                       </Button>
@@ -287,52 +385,53 @@ const ManagementModal = ({ open, onOpenChange }) => {
               </div>
 
               <div className="border rounded-lg divide-y">
-                {campaignHistory.length > 0 && campaignHistory.map((sequence) => (
-                  <div
-                    key={sequence.id}
-                    className="p-4 flex flex-col space-y-2"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-medium text-lg">
-                          Campaign ID: {sequence.user_campaign_id}
-                        </h4>
-                        <p
-                          className={`text-sm font-medium ${getStatusColor(
-                            sequence.status
-                          )}`}
-                        >
-                          Status: {sequence.status}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Scheduled for: </span>
-                          {new Date(sequence.scheduled_date).toLocaleString()}
-                        </p>
-                        {sequence.status === "SENT" && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Sent on: </span>
-                            {new Date(sequence.updated_at).toLocaleString()}
+                {campaignHistory.length > 0 &&
+                  campaignHistory.map((sequence) => (
+                    <div
+                      key={sequence.id}
+                      className="p-4 flex flex-col space-y-2"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-medium text-lg">
+                            Campaign ID: {sequence.user_campaign_id}
+                          </h4>
+                          <p
+                            className={`text-sm font-medium ${getStatusColor(
+                              sequence.status
+                            )}`}
+                          >
+                            Status: {sequence.status}
                           </p>
-                        )}
-                        {/* <p className="text-xs text-gray-400">
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Scheduled for: </span>
+                            {new Date(sequence.scheduled_date).toLocaleString()}
+                          </p>
+                          {sequence.status === "SENT" && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Sent on: </span>
+                              {new Date(sequence.updated_at).toLocaleString()}
+                            </p>
+                          )}
+                          {/* <p className="text-xs text-gray-400">
                           Created by ID: {sequence.created_by}
                         </p> */}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hover:text-blue-600"
+                          title="View Details"
+                        >
+                          <EyeIcon className="w-5 h-5" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="hover:text-blue-600"
-                        title="View Details"
-                      >
-                        <EyeIcon className="w-5 h-5" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </TabsContent>
