@@ -209,7 +209,7 @@ const CampaignList = () => {
                 >
                   <PaperAirplaneIcon className="h-5 w-5" />
                 </button>
-                <span
+                {/* <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     campaign.status === "ACTIVE"
                       ? "bg-green-100 text-green-800"
@@ -217,7 +217,7 @@ const CampaignList = () => {
                   }`}
                 >
                   {campaign.status}
-                </span>
+                </span> */}
               </div>
             </div>
             <div className="text-sm text-gray-600">

@@ -74,6 +74,7 @@ const ManagementModal = ({ open, onOpenChange }) => {
   const fetchCampaignHistory = async () => {
     try {
       const response = await campaignAPI.campaignHistory();
+      console.log(response.campaign_sequences);
       setCampaignHistory(response.campaign_sequences);
     } catch (error) {
       console.error("Error fetching campaign history:", error);
@@ -214,13 +215,13 @@ const ManagementModal = ({ open, onOpenChange }) => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Campaign Management</h3>
-                <Button
+                {/* <Button
                   className="flex items-center gap-2"
                   onClick={handleCreateCampaign}
                 >
                   <PlusCircleIcon className="w-5 h-5" />
                   New Campaign
-                </Button>
+                </Button> */}
               </div>
 
               <div className="border rounded-lg divide-y">
@@ -406,8 +407,8 @@ const ManagementModal = ({ open, onOpenChange }) => {
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Scheduled for: </span>
-                            {new Date(sequence.scheduled_date).toLocaleString()}
+                            <span className="font-medium">Created at: </span>
+                            {new Date(sequence.created_at).toLocaleString()}
                           </p>
                           {sequence.status === "SENT" && (
                             <p className="text-sm text-gray-600">

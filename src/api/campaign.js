@@ -84,6 +84,7 @@ export const campaignAPI = {
     campaignHistory: async()=>{
         const response = await axios.get(`${API_URL}campaign/sequence`, {
             headers: getAuthHeader(),
+            params: getRequestParams()
         });
         console.log(response.data);
         return response.data;

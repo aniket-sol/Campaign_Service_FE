@@ -204,7 +204,7 @@ const PracticeAdminCampaignList = () => {
                 >
                   <PaperAirplaneIcon className="h-5 w-5" />
                 </button>
-                <span
+                {/* <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     campaign.status === "SENT"
                       ? "bg-blue-100 text-blue-800"
@@ -212,7 +212,7 @@ const PracticeAdminCampaignList = () => {
                   }`}
                 >
                   {campaign.status}
-                </span>
+                </span> */}
               </div>
             </div>
             <div className="text-sm text-gray-600">
